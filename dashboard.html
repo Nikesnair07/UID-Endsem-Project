@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — ReadySetCook</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="logo">🍳 ReadySetCook</a>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="#" onclick="showSection('home',this)">
+        <span class="icon">🏠</span> Home
+      </a>
+      <a class="nav-item" href="#" onclick="showSection('saved',this)">
+        <span class="icon">❤️</span> Saved Recipes
+      </a>
+      <a class="nav-item" href="#" onclick="showSection('chef',this)">
+        <span class="icon">🤖</span> AI Chef
+      </a>
+      <a class="nav-item" href="#" onclick="showSection('planner',this)">
+        <span class="icon">📅</span> Meal Planner
+      </a>
+      <a class="nav-item" href="#" onclick="showSection('settings',this)">
+        <span class="icon">⚙️</span> Settings
+      </a>
+      <a class="nav-item" href="index.html" style="margin-top:auto">
+        <span class="icon">🚪</span> Logout
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="profile-mini">
+        <div class="avatar">JD</div>
+        <div class="profile-mini-info">
+          <span>Jane Doe</span>
+          <small>⭐ Premium Chef</small>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="dash-top">
+      <div style="display:flex;align-items:center;gap:1rem">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="dashSearch" placeholder="Search recipes, ingredients..." oninput="dashSearchRecipes(this.value)" />
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--muted)">
+          <span id="savedCount" style="color:var(--orange);font-weight:600">0</span> saved
+        </div>
+        <div class="avatar" style="width:36px;height:36px;font-size:0.8rem">JD</div>
+      </div>
+    </div>
+
+    <div class="dash-content">
+
+      <!-- HOME SECTION -->
+      <div id="sec-home">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+          <div class="ingredient-input-wrap" style="justify-content:flex-start">
+            <input type="text" id="dashIngredient" placeholder="Add ingredient..." onkeydown="if(event.key==='Enter')dashAddIngredient()" style="width:220px" />
+            <button class="btn-primary" onclick="dashAddIngredient()" style="padding:0.6rem 1.2rem;font-size:0.9rem">+ Add</button>
+            <button class="btn-ghost" onclick="dashSearch()" style="padding:0.6rem 1.2rem;font-size:0.9rem">Search</button>
+          </div>
+        </div>
+        <div class="tags-row" id="dashTags" style="justify-content:flex-start;margin-bottom:1.2rem"></div>
+
+        <div class="filter-row" id="dashFilterRow" style="justify-content:flex-start;margin-bottom:1.5rem">
+          <button class="filter-btn active" onclick="dashSetFilter(this,'All')">All</button>
+          <button class="filter-btn" onclick="dashSetFilter(this,'Seafood')">🦐 Seafood</button>
+          <button class="filter-btn" onclick="dashSetFilter(this,'Chicken')">🍗 Chicken</button>
+          <button class="filter-btn" onclick="dashSetFilter(this,'Beef')">🥩 Beef</button>
+          <button class="filter-btn" onclick="dashSetFilter(this,'Pasta')">🍝 Pasta</button>
+          <button class="filter-btn" onclick="dashSetFilter(this,'Dessert')">🍰 Dessert</button>
+        </div>
+
+        <h2 class="section-heading">Discover Recipes <span id="dashRecipeCount"></span></h2>
+        <div id="dashLoading" style="display:none"><div class="spinner"></div></div>
+        <div class="dash-recipes-grid" id="dashGrid"></div>
+      </div>
+
+      <!-- SAVED SECTION -->
+      <div id="sec-saved" style="display:none">
+        <h2 class="section-heading">Your Saved Recipes ❤️</h2>
+        <div class="dash-recipes-grid" id="savedGrid"></div>
+        <div id="savedEmpty" class="empty-state" style="display:none">
+          <div class="emoji">💔</div>
+          <p>No saved recipes yet. Browse and tap the heart on any recipe!</p>
+        </div>
+      </div>
+
+      <!-- AI CHEF SECTION -->
+      <div id="sec-chef" style="display:none">
+        <h2 class="section-heading">AI Chef 🤖</h2>
+        <div class="glass" style="border-radius:16px;overflow:hidden;height:500px;display:flex;flex-direction:column">
+          <div class="chat-header" style="padding:1.2rem 1.5rem">
+            <div class="chat-header-avatar">🤖</div>
+            <div><h4>Chef AI</h4><small>● Always Online</small></div>
+          </div>
+          <div class="chat-messages" id="chefMessages" style="flex:1">
+            <div class="msg bot">Hi! I'm your personal AI Chef 👨‍🍳 Ask me about recipes, substitutions, cooking techniques — anything food-related!</div>
+          </div>
+          <div class="chat-suggestions">
+            <button class="sug-btn" onclick="chefSug(this)">Low-calorie dinner ideas</button>
+            <button class="sug-btn" onclick="chefSug(this)">How to caramelise onions</button>
+            <button class="sug-btn" onclick="chefSug(this)">Vegan protein sources</button>
+          </div>
+          <div class="chat-input-row" style="padding:1rem 1.5rem">
+            <input class="chat-input" id="chefInput" placeholder="Ask Chef AI anything..." onkeydown="if(event.key==='Enter')chefSend()" />
+            <button class="chat-send" onclick="chefSend()">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLANNER SECTION -->
+      <div id="sec-planner" style="display:none">
+        <h2 class="section-heading">Meal Planner 📅</h2>
+        <div id="plannerGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:0.8rem;margin-top:1rem"></div>
+        <button class="btn-primary" onclick="generatePlan()" style="margin-top:1.5rem">🤖 Generate AI Meal Plan</button>
+      </div>
+
+      <!-- SETTINGS SECTION -->
+      <div id="sec-settings" style="display:none">
+        <h2 class="section-heading">Settings ⚙️</h2>
+        <div class="glass" style="padding:2rem;border-radius:16px;max-width:500px">
+          <div style="margin-bottom:1.5rem">
+            <div class="feat-card" style="display:flex;align-items:center;justify-content:space-between;padding:1rem">
+              <span>Dark Theme</span>
+              <div style="width:44px;height:24px;background:var(--orange);border-radius:100px;cursor:none;position:relative">
+                <div style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;right:3px;top:3px"></div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Display Name</label>
+            <input type="text" value="Jane Doe" />
+          </div>
+          <div class="field">
+            <label>Dietary Preference</label>
+            <input type="text" placeholder="e.g. Vegetarian, Gluten-free..." />
+          </div>
+          <button class="btn-primary" style="margin-top:0.5rem">Save Changes</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <img id="modalImg" src="" alt="" class="modal-img" />
+    <div class="modal-body">
+      <h2 id="modalTitle"></h2>
+      <div class="modal-tags" id="modalTags"></div>
+      <p id="modalDesc"></p>
+      <div id="modalIngredients"></div>
+      <div id="modalInstructions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT FAB -->
+<button class="chatbot-fab" id="chatFab" onclick="toggleChat()">🤖</button>
+<div class="chatbot-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-avatar">🤖</div>
+    <div><h4>Chef AI</h4><small>● Online</small></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">Hey Chef! 👨‍🍳 What can I cook up for you today?</div>
+  </div>
+  <div class="chat-suggestions" id="chatSugs">
+    <button class="sug-btn" onclick="sendSug(this)">What's for dinner?</button>
+    <button class="sug-btn" onclick="sendSug(this)">Healthy breakfast</button>
+    <button class="sug-btn" onclick="sendSug(this)">5-min meals</button>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chatInput" placeholder="Ask Chef AI..." onkeydown="if(event.key==='Enter')sendChat()" />
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<script src="js/recipes.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+<script>
+  initDashboard();
+</script>
+</body>
+</html>
